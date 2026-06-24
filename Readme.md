@@ -29,5 +29,3 @@ It is higly recommended to read the docs in order to understand what services ar
 ## Setup main directories
 
 [This script](./setup.sh) automates user and dirs creation. Service accounts are created to run containers so avoid root usage
-
-## Tailscale for remote access
