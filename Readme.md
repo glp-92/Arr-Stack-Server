@@ -1,31 +1,43 @@
-# About ARR Stack
+# Sobre el Stack ARR
 
-Arr Stack provides a full media server with all elements interconnected to automate tasks such as select films, automatically download, get subtitles, manage storage and more.
+El Stack ARR proporciona un servidor multimedia completo con todos sus elementos interconectados para automatizar tareas como seleccionar películas, descargarlas automáticamente, obtener subtítulos, gestionar el almacenamiento y más.
 
-For first time config of services [check this small guide](./First-config.md)
+Para la configuración inicial de los servicios [consulta esta pequeña guía](./Primeros-pasos.md)
 
-## Docs
+## Documentación
 
-It is higly recommended to read the docs in order to understand what services are doing
+Es altamente recomendable leer la documentación para entender qué hace cada servicio:
 
-[Justification of usage known DNS over VPN](https://wiki.servarr.com/en/vpn)
+[Justificación del uso de DNS conocidos sobre VPN](https://wiki.servarr.com/en/vpn)
 
-[Setup folder structure for docker containers. SEE PERMISSIONS](https://trash-guides.info/File-and-Folder-Structure/How-to-set-up/Docker/)
+[Configuración de la estructura de carpetas para contenedores Docker. VER PERMISOS](https://trash-guides.info/File-and-Folder-Structure/How-to-set-up/Docker/)
 
-[Useful guide on first run](https://github.com/automation-avenue/arr-new)
+[Guía útil para el primer inicio](https://github.com/automation-avenue/arr-new)
 
-## Services description
+## Configuración de QBittorrent para el ancho de banda
 
-- `QBitTorrent` torrent client for p2p downloads
-- `Radarr` automates video library management
-- `Sonarr` automates tv series management
-- `Lidarr` automates music management
-- `Bazzarr` automates subtitle downloading
-- `Prowlarr` connects radarr/sonnar with qbittorrent and sabnzdb
-- `Flaresolverr` automatically solves Cloudflare captchas
-- `Jellyfin` media server that provides de UI to see the content
-- `Jellyseer` download automation centralized on this server for every content
+Aplica las siguientes reglas en `qBittorrent` para asegurar que el ancho de banda sea estable en la red local:
 
-## Setup main directories
+1. `Tools` -> `Options` -> `Connection` -> `Peer connection protocol` -> `TCP`
+2. `Tools` -> `Options` -> `Speed` -> establece 1250 KiB/s en subida y 2500 KiB/s en descarga. Marca `Apply rate limit to all connections`
+3. `Tools` -> `Options` -> `BitTorrent` -> marca `Torrent Queueing` y establece `Maximum active downloads` = 1, `Maximum active uploads` = 1, `Maximum active torrents` = 2
 
-[This script](./setup.sh) automates user and dirs creation. Service accounts are created to run containers so avoid root usage
+Para evitar problemas con los *hardlinks*, puedes configurar límites de *ratio*:
+
+1. `Tools` -> `Options` -> `BitTorrent` -> `Seeding Limits` -> pon todo a 0 y luego selecciona `Remove torrent and its files`
+
+## Descripción de los servicios
+
+- `QBitTorrent` cliente torrent para descargas P2P.
+- `Radarr` automatiza la gestión de la biblioteca de películas.
+- `Sonarr` automatiza la gestión de series de TV.
+- `Lidarr` automatiza la gestión de música.
+- `Bazarr` automatiza la descarga de subtítulos.
+- `Prowlarr` conecta Radarr/Sonarr con qBittorrent y SABnzbd.
+- `Flaresolverr` resuelve automáticamente los captchas de Cloudflare.
+- `Jellyfin` servidor multimedia que proporciona la interfaz para ver el contenido.
+- `Seerr` automatización de descargas centralizada en este servidor para todo el contenido; utiliza las API de `Sonarr` y `Radarr`.
+
+## Configuración de los directorios principales
+
+[Este script](./setup.sh) automatiza la creación de usuarios y directorios. Se crean cuentas de servicio para ejecutar los contenedores, evitando así el uso de `root`.

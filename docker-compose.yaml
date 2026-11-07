@@ -1,14 +1,14 @@
-x-common-keys: &common-keys # common keys
+x-common-keys: &common-keys
   restart: unless-stopped
   logging:
     driver: json-file
   security_opt:
     - no-new-privileges:true
   environment:
-    PUID: ${PUID}
-    PGID: ${PGID}
+    PUID: ${PUID:-901}
+    PGID: ${PGID:-901}
     UMASK: 002 # new files permission inheritance
-    TZ: Europe/London
+    TZ: Europe/Madrid
   networks:
     - arr_network
   dns:
@@ -16,59 +16,129 @@ x-common-keys: &common-keys # common keys
     - 1.0.0.1
 
 services:
-  radarr: # management of movies library
+  radarr: # movies
     <<: *common-keys
     container_name: radarr
     image: ghcr.io/hotio/radarr:latest
-    # ports:
-    #   - "127.0.0.1:7878:7878"
+    ports:
+      - "7878:7878"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${ROOT_CONFIG_FOLDER}/radarr:/config
       - ${ROOT_MEDIA_FOLDER}:/data # radarr should have access to entire mount point (see torrent + media files)
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:7878/ping",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
-  sonarr: # management of tv shows library
+  sonarr: # tv shows
     <<: *common-keys
     container_name: sonarr
     image: ghcr.io/hotio/sonarr:latest
-    # ports:
-    #   - "127.0.0.1:8989:8989"
+    ports:
+      - "8989:8989"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${ROOT_CONFIG_FOLDER}/sonarr:/config
       - ${ROOT_MEDIA_FOLDER}:/data # sonarr should have access to entire mount point (see torrent + media files)
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8989/ping",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
-  lidarr: # management of music library
+  lidarr: # music
     <<: *common-keys
     container_name: lidarr
     image: ghcr.io/hotio/lidarr:latest
-    # ports:
-    #   - "127.0.0.1:8686:8686"
+    ports:
+      - "8686:8686"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${ROOT_CONFIG_FOLDER}/lidarr:/config
       - ${ROOT_MEDIA_FOLDER}:/data # lidarr should have access to entire mount point (see torrent + media files)
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8686/ping",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
-  bazarr: # subtitles management
+  bazarr: # subtitles
     <<: *common-keys
     container_name: bazarr
     image: ghcr.io/hotio/bazarr:latest
-    # ports:
-    #   - "127.0.0.1:6767:6767"
+    ports:
+      - "6767:6767"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${ROOT_CONFIG_FOLDER}/bazarr:/config
       - ${ROOT_MEDIA_FOLDER}:/data # bazarr should have access to entire mount point (see torrent + media files)
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:6767/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   prowlarr: # indexer manager
     <<: *common-keys
     container_name: prowlarr
     image: ghcr.io/hotio/prowlarr:latest
-    # ports:
-    #   - "127.0.0.1:9696:9696"
+    ports:
+      - "9696:9696"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${ROOT_CONFIG_FOLDER}/prowlarr:/config
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:9696/ping",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   flaresolverr: # runs on internal network to bypass cloudflare protection for indexers and trackers
     <<: *common-keys
@@ -80,18 +150,32 @@ services:
     container_name: qbittorrent
     image: ghcr.io/hotio/qbittorrent:latest
     ports:
-      - "127.0.0.1:8080:8080"
+      - "8080:8080"
     environment:
       - WEBUI_PORT=8080
       - TORRENTING_PORT=6881
-      - PUID=997
-      - PGID=983
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
       - UMASK=002 # new files permission inheritance
       - TZ=Europe/London
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${ROOT_CONFIG_FOLDER}/qbittorrent:/config
       - ${ROOT_MEDIA_FOLDER}:/data # qbittorrent should have access to entire mount point (see torrent + media files)
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8080/",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   jellyfin: # media server
     <<: *common-keys
@@ -101,17 +185,38 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - ${ROOT_CONFIG_FOLDER}/jellyfin:/config
       - ${ROOT_MEDIA_FOLDER}/media:/data/media:ro #read-only access to media files for jellyfin, it should not be able to modify them
-    # ports:
-    #   - "127.0.0.1:8096:8096"
-
-  jellyseerr:
-    <<: *common-keys
-    container_name: jellyseerr
-    image: fallenbagel/jellyseerr:latest
     ports:
-      - "127.0.0.1:5055:5055"
+      - "8096:8096"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8096/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  seerr:
+    <<: *common-keys
+    image: ghcr.io/seerr-team/seerr:latest
+    container_name: seerr
+    ports:
+      - 5055:5055
+    user: "901:901"
     volumes:
-      - ${ROOT_CONFIG_FOLDER}/jellyseerr:/app/config
+      - ${ROOT_CONFIG_FOLDER}/seerr:/app/config
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/settings/public || exit 1
+      start_period: 20s
+      timeout: 3s
+      interval: 15s
+      retries: 3
 
 networks:
   arr_network:
