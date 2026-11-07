@@ -18,7 +18,7 @@ Es altamente recomendable leer la documentación para entender qué hace cada se
 
 Aplica las siguientes reglas en `qBittorrent` para asegurar que el ancho de banda sea estable en la red local:
 
-1. `Tools` -> `Options` -> `Connection` -> `Peer connection protocol` -> `TCP`. Ajustar los limites de conexion para no saturar la red domestica
+1. `Tools` -> `Options` -> `Connection` -> `Peer connection protocol` -> `TCP and uTP`. Ajustar los limites de conexion para no saturar la red domestica
 2. `Tools` -> `Options` -> `Speed` -> establece 1250 KiB/s en subida y 2500 KiB/s en descarga. Marca `Apply rate limit to all connections`
 3. `Tools` -> `Options` -> `BitTorrent` -> marca `Torrent Queueing` y establece `Maximum active downloads` = 1, `Maximum active uploads` = 1, `Maximum active torrents` = 2
 
