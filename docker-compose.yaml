@@ -154,10 +154,10 @@ services:
     environment:
       - WEBUI_PORT=8080
       - TORRENTING_PORT=6881
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
+      - PUID=${PUID:-901}
+      - PGID=${PGID:-901}
       - UMASK=002 # new files permission inheritance
-      - TZ=Europe/London
+      - TZ=Europe/Madrid
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${ROOT_CONFIG_FOLDER}/qbittorrent:/config
