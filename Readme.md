@@ -22,10 +22,6 @@ Aplica las siguientes reglas en `qBittorrent` para asegurar que el ancho de band
 2. `Tools` -> `Options` -> `Speed` -> establece 1250 KiB/s en subida y 2500 KiB/s en descarga. Marca `Apply rate limit to all connections`
 3. `Tools` -> `Options` -> `BitTorrent` -> marca `Torrent Queueing` y establece `Maximum active downloads` = 1, `Maximum active uploads` = 1, `Maximum active torrents` = 2
 
-Para evitar problemas con los *hardlinks*, puedes configurar límites de *ratio*:
-
-1. `Tools` -> `Options` -> `BitTorrent` -> `Seeding Limits` -> pon todo a 0 y luego selecciona `Remove torrent and its files`
-
 ## Descripción de los servicios
 
 - `QBitTorrent` cliente torrent para descargas P2P.
